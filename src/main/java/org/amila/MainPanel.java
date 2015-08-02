@@ -1,27 +1,40 @@
 /*
-    This file is part of OpenSinhalaEnglishDictionary.
+ This file is part of OpenSinhalaEnglishDictionary.
 
-    OpenSinhalaEnglishDictionary is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ OpenSinhalaEnglishDictionary is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    OpenSinhalaEnglishDictionary is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ OpenSinhalaEnglishDictionary is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with OpenSinhalaEnglishDictionary.  If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU General Public License
+ along with OpenSinhalaEnglishDictionary.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.amila;
 
 import java.awt.Font;
-import java.awt.event.KeyEvent;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
-import java.io.InputStream;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.AbstractListModel;
+import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 
 /**
@@ -29,23 +42,27 @@ import javax.swing.UIManager;
  * @author Amila
  */
 public class MainPanel extends javax.swing.JFrame {
-    
+
     public static String table = "WORD";
-    public static String column ="ENGLISH";
+    public static String column = "ENGLISH";
     public static String column_other = "SINHALA";
     private Font sinhalaFont;
+
     /**
      * Creates new form MainPanel
      */
     public MainPanel() {
         initComponents();
         try {
-            sinhalaFont = Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/fonts/iskpota.ttf"));
+            sinhalaFont = Font.createFont(Font.TRUETYPE_FONT, getClass().getClassLoader().getResource("fonts/iskpota.ttf").openStream());
             sinhalaFont = sinhalaFont.deriveFont(16.0f);
             lst_meaning.setFont(sinhalaFont);
         } catch (Exception e) {
-            System.out.println("Font Error: "+e);
+            System.out.println("Font Error: " + e);
         }
+        Image i = new ImageIcon(getClass().getClassLoader().getResource("images/OpenENSIDIC128.png")).getImage();
+        setIconImage(i);
+
     }
 
     /**
@@ -57,15 +74,28 @@ public class MainPanel extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
         txt_search = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         lst_meaning = new javax.swing.JList();
+        cmb_language = new javax.swing.JComboBox();
         jScrollPane2 = new javax.swing.JScrollPane();
         lst_suggestions = new javax.swing.JList();
-        cmb_language = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Open Sinhala-English Dictionary");
+        addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                formFocusGained(evt);
+            }
+        });
+        addWindowFocusListener(new java.awt.event.WindowFocusListener() {
+            public void windowGainedFocus(java.awt.event.WindowEvent evt) {
+                formWindowGainedFocus(evt);
+            }
+            public void windowLostFocus(java.awt.event.WindowEvent evt) {
+            }
+        });
 
         txt_search.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -93,13 +123,6 @@ public class MainPanel extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(lst_meaning);
 
-        lst_suggestions.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                lst_suggestionsValueChanged(evt);
-            }
-        });
-        jScrollPane2.setViewportView(lst_suggestions);
-
         cmb_language.setFont(new java.awt.Font("Bhashitha2", 0, 14)); // NOI18N
         cmb_language.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "English", "සිංහල" }));
         cmb_language.addActionListener(new java.awt.event.ActionListener() {
@@ -108,37 +131,60 @@ public class MainPanel extends javax.swing.JFrame {
             }
         });
 
+        lst_suggestions.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                lst_suggestionsValueChanged(evt);
+            }
+        });
+        jScrollPane2.setViewportView(lst_suggestions);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(txt_search, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cmb_language, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txt_search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 1, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cmb_language, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(29, 29, 29)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(txt_search, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(cmb_language, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(31, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(25, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(23, 23, 23))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(45, 45, 45)
-                        .addComponent(txt_search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(cmb_language, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(25, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(33, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(25, 25, 25))
         );
 
         pack();
@@ -146,37 +192,40 @@ public class MainPanel extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cmb_languageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmb_languageActionPerformed
-        if(cmb_language.getSelectedIndex()==0){
+
+        txt_search.setText(null);
+
+        if (cmb_language.getSelectedIndex() == 0) {
             table = "WORD";
             column = "ENGLISH";
             column_other = "SINHALA";
             lst_meaning.setFont(sinhalaFont);
             txt_search.setFont(super.getFont());
             lst_suggestions.setFont(super.getFont());
-        }else{
+
+        } else if (cmb_language.getSelectedIndex() == 1) {
             table = "VACHANA";
             column = "SINHALA";
             column_other = "ENGLISH";
             lst_meaning.setFont(super.getFont());
             txt_search.setFont(sinhalaFont);
             lst_suggestions.setFont(sinhalaFont);
-            
+
         }
-        txt_search.setText(null);
+
         txt_search.grabFocus();
     }//GEN-LAST:event_cmb_languageActionPerformed
 
     private void txt_searchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_searchKeyReleased
         try {
-            ResultSet rs = new JDBC().getData("SELECT * FROM "+table+" WHERE "+column+" LIKE '"+txt_search.getText()+"%'");
+            ResultSet rs = new JDBC().getData("SELECT * FROM " + table + " WHERE " + column + " LIKE '" + txt_search.getText() + "%'");
             Vector data = new Vector();
-            while(rs.next()){
+            while (rs.next()) {
                 data.add(rs.getString(column));
             }
-            
-            
+
             lst_suggestions.setListData(data);
-            
+
             rs.close();
         } catch (Exception e) {
             System.out.println(e);
@@ -184,11 +233,11 @@ public class MainPanel extends javax.swing.JFrame {
     }//GEN-LAST:event_txt_searchKeyReleased
 
     private void txt_searchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_searchActionPerformed
-        
+
     }//GEN-LAST:event_txt_searchActionPerformed
 
     private void txt_searchKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_searchKeyPressed
-        if(evt.getKeyCode()==10 && lst_suggestions.getModel().getSize()>0){
+        if (evt.getKeyCode() == 10 && lst_suggestions.getModel().getSize() > 0) {
             lst_suggestions.grabFocus();
             lst_suggestions.setSelectedIndex(0);
             //txt_search.grabFocus();
@@ -197,17 +246,16 @@ public class MainPanel extends javax.swing.JFrame {
 
     private void lst_suggestionsValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_lst_suggestionsValueChanged
         try {
-            ResultSet rs = new JDBC().getData("SELECT * FROM "+table+" WHERE "+column+" = '"+lst_suggestions.getSelectedValue().toString()+"'");
-            
+            ResultSet rs = new JDBC().getData("SELECT * FROM " + table + " WHERE " + column + " = '" + lst_suggestions.getSelectedValue().toString() + "'");
+
             rs.next();
             String[] data = rs.getString(column_other).replace("|", ":").split(":");
             for (int i = 0; i < data.length; i++) {
                 data[i] = data[i].trim();
             }
-            
-            
+
             lst_meaning.setListData(data);
-            
+
             rs.close();
         } catch (Exception e) {
             System.out.println(e);
@@ -215,25 +263,36 @@ public class MainPanel extends javax.swing.JFrame {
     }//GEN-LAST:event_lst_suggestionsValueChanged
 
     private void lst_meaningValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_lst_meaningValueChanged
-        
+
     }//GEN-LAST:event_lst_meaningValueChanged
 
     private void lst_meaningMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lst_meaningMouseClicked
-        if(evt.getClickCount()==2 && lst_meaning.getModel().getSize()>0){
-            if(cmb_language.getSelectedIndex()==0){
+        if (evt.getClickCount() == 2 && lst_meaning.getModel().getSize() > 0) {
+            if (cmb_language.getSelectedIndex() == 0) {
                 cmb_language.setSelectedIndex(1);
-            }else{
+            } else {
                 cmb_language.setSelectedIndex(0);
             }
-            
+
             txt_search.setText(lst_meaning.getSelectedValue().toString());
             txt_searchKeyReleased(null);
             lst_suggestions.setSelectedIndex(0);
-            
-            
-            
+
         }
     }//GEN-LAST:event_lst_meaningMouseClicked
+
+    private void formFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_formFocusGained
+
+    }//GEN-LAST:event_formFocusGained
+
+    private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
+        try {
+            txt_search.setText(Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor).toString());
+            txt_searchKeyReleased(null);
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+    }//GEN-LAST:event_formWindowGainedFocus
 
     /**
      * @param args the command line arguments
@@ -256,6 +315,7 @@ public class MainPanel extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox cmb_language;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JList lst_meaning;
