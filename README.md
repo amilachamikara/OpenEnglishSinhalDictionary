@@ -6,3 +6,4 @@ First thing of making a dictionary is having a database of words and meanings. T
 The original database was converted to a SQLite databse. 
 And the project is build upon maven build tool.
 
+![](/OpenENSIDIC.png)
