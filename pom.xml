@@ -18,4 +18,6 @@
         </dependency>
 
     </dependencies>
+    <name>Open Sinhala English Dictionary</name>
+    <description>This is an open source project which is develeped with the intention of making a Sinhala English Unicode Dictionary.</description>
 </project>

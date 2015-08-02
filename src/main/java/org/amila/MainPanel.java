@@ -1,12 +1,25 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+    This file is part of OpenSinhalaEnglishDictionary.
+
+    OpenSinhalaEnglishDictionary is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenSinhalaEnglishDictionary is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenSinhalaEnglishDictionary.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.amila;
 
 import java.awt.Font;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.InputStream;
 import java.sql.ResultSet;
 import java.util.Vector;
 import javax.swing.UIManager;
@@ -20,12 +33,19 @@ public class MainPanel extends javax.swing.JFrame {
     public static String table = "WORD";
     public static String column ="ENGLISH";
     public static String column_other = "SINHALA";
-
+    private Font sinhalaFont;
     /**
      * Creates new form MainPanel
      */
     public MainPanel() {
         initComponents();
+        try {
+            sinhalaFont = Font.createFont(Font.TRUETYPE_FONT, new File("src/main/resources/fonts/iskpota.ttf"));
+            sinhalaFont = sinhalaFont.deriveFont(16.0f);
+            lst_meaning.setFont(sinhalaFont);
+        } catch (Exception e) {
+            System.out.println("Font Error: "+e);
+        }
     }
 
     /**
@@ -130,10 +150,17 @@ public class MainPanel extends javax.swing.JFrame {
             table = "WORD";
             column = "ENGLISH";
             column_other = "SINHALA";
+            lst_meaning.setFont(sinhalaFont);
+            txt_search.setFont(super.getFont());
+            lst_suggestions.setFont(super.getFont());
         }else{
             table = "VACHANA";
             column = "SINHALA";
             column_other = "ENGLISH";
+            lst_meaning.setFont(super.getFont());
+            txt_search.setFont(sinhalaFont);
+            lst_suggestions.setFont(sinhalaFont);
+            
         }
         txt_search.setText(null);
         txt_search.grabFocus();
